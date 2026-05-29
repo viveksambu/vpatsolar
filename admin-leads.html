@@ -313,7 +313,7 @@
         async function loadLeadsTable() {
             if (!window.user) return; // Safeguard redirects
             
-            allLeads = await window.getLeads();
+            allLeads = await window.getMockLeads();
             
             // Filter leads: Employees only see their own leads
             if(window.user.role === 'Employee') {
