@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lead Management | VPAT CRM</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="admin-layout.css">
+    <style>
+        .filter-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            position: relative;
+        }
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--admin-text-muted);
+        }
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border: 1px solid var(--admin-border);
+            border-radius: 8px;
+        }
+        .filter-select {
+            padding: 10px 15px;
+            border: 1px solid var(--admin-border);
+            border-radius: 8px;
+            background: white;
+            min-width: 150px;
+        }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal {
+            background: white;
+            width: 90%;
+            max-width: 800px;
+            border-radius: var(--radius-lg);
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            box-shadow: var(--shadow-lg);
+        }
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--admin-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--admin-text-muted);
+        }
+        .modal-body {
+            padding: 25px;
+            overflow-y: auto;
+        }
+        .form-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+        .modal-footer {
+            padding: 20px 25px;
+            border-top: 1px solid var(--admin-border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+        .btn-outline {
+            padding: 10px 20px;
+            border: 1px solid var(--admin-border);
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .action-btns button {
+            background: none;
+            border: none;
+            color: var(--admin-text-muted);
+            margin: 0 5px;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+        .action-btns button:hover {
+            color: var(--admin-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="admin-dashboard.html" class="logo">
+                    <i class="fa-solid fa-solar-panel"></i>
+                    <h2>VPAT CRM</h2>
+                </a>
+            </div>
+            
+            <div class="sidebar-menu">
+                <div class="menu-label admin-only">Main Menu</div>
+                <a href="admin-dashboard.html" class="menu-item admin-only">
+                    <i class="fas fa-chart-pie"></i> Dashboard
+                </a>
+                <a href="admin-leads.html" class="menu-item active">
+                    <i class="fas fa-users"></i> Lead Management
+                </a>
+                
+                <div class="menu-label">Project Tracking</div>
+                <a href="admin-tracking.html" class="menu-item">
+                    <i class="fas fa-route"></i> Installation Tracking
+                </a>
+                <a href="#" class="menu-item admin-only">
+                    <i class="fas fa-file-invoice-dollar"></i> Quotations
+                </a>
+                
+                <div class="menu-label admin-only">Admin Controls</div>
+                <a href="admin-employees.html" class="menu-item admin-only">
+                    <i class="fas fa-user-tie"></i> Employees
+                </a>
+                <a href="#" class="menu-item admin-only">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <div class="user-details">
+                        <h4 id="userName">Admin User</h4>
+                        <span id="userRole">Administrator</span>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Secure Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left" style="display:flex; align-items:center;">
+                    <button class="mobile-toggle" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2>Lead Management</h2>
+                </div>
+                <div class="topbar-right">
+                    <button class="btn-admin" style="padding: 8px 15px; font-size:13px;" onclick="openLeadModal()">
+                        <i class="fas fa-plus"></i> Add New Lead
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <div class="card">
+                    <div class="filter-bar">
+                        <div class="search-box">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchLead" placeholder="Search by Name, Phone, or ID...">
+                        </div>
+                        <select class="filter-select" id="statusFilter">
+                            <option value="">All Statuses</option>
+                            <option value="New">New Lead</option>
+                            <option value="Contacted">Contacted</option>
+                            <option value="Site Visit Scheduled">Site Visit Scheduled</option>
+                            <option value="Quotation Sent">Quotation Sent</option>
+                            <option value="Completed">Completed</option>
+                        </select>
+                        <button class="btn-outline admin-only" onclick="exportData()"><i class="fas fa-download"></i> Export</button>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="leadsTable">
+                            <thead>
+                                <tr>
+                                    <th>Lead ID / Date</th>
+                                    <th>Customer Info</th>
+                                    <th>Requirement</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Lead Modal -->
+    <div class="modal-overlay" id="leadModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add New Lead</h3>
+                <button class="modal-close" onclick="closeLeadModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="leadForm">
+                    <h4 style="margin-bottom:15px; color:var(--admin-secondary); border-bottom:1px solid #eee; padding-bottom:5px;">Customer Details</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Customer Name *</label>
+                            <input type="text" id="c_name" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Phone Number *</label>
+                            <input type="tel" id="c_phone" class="form-control" required>
+                        </div>
+                        <div class="form-group">
+                            <label>Email Address</label>
+                            <input type="email" id="c_email" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Building Type</label>
+                            <select id="c_type" class="form-control">
+                                <option>Residential</option>
+                                <option>Commercial</option>
+                                <option>Industrial</option>
+                            </select>
+                        </div>
+                        <div class="form-group full-width">
+                            <label>Complete Address</label>
+                            <input type="text" id="c_address" class="form-control">
+                        </div>
+                    </div>
+
+                    <h4 style="margin:20px 0 15px; color:var(--admin-secondary); border-bottom:1px solid #eee; padding-bottom:5px;">Solar Requirements</h4>
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label>Monthly Bill (₹)</label>
+                            <input type="text" id="c_bill" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>Required Load (KW)</label>
+                            <input type="number" id="c_load" class="form-control">
+                        </div>
+                        <div class="form-group">
+                            <label>System Type</label>
+                            <select id="c_system" class="form-control">
+                                <option>On-grid</option>
+                                <option>Off-grid</option>
+                                <option>Hybrid</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Lead Status *</label>
+                            <select id="c_status" class="form-control" required>
+                                <option>New Lead</option>
+                                <option>Contacted</option>
+                                <option>Site Visit Scheduled</option>
+                                <option>Quotation Sent</option>
+                                <option>Negotiation</option>
+                                <option>Installation Started</option>
+                                <option>Completed</option>
+                                <option>Cancelled</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                        <label>Final Price / Quotation (₹)</label>
+                        <input type="number" id="c_price" class="form-control" placeholder="e.g. 250000">
+                    </div>
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label>Additional Notes</label>
+                        <textarea id="c_notes" class="form-control" rows="3" placeholder="Enter any specific customer requirements or notes here..."></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-outline" onclick="closeLeadModal()">Cancel</button>
+                <button class="btn-admin" style="width:auto; padding: 10px 25px;" onclick="saveLead()">Save Lead Data</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Admin Logic -->
+    <script type="module" src="admin-app.js"></script>
+    <script>
+        let currentLeads = [];
+        let allLeads = [];
+        
+        async function loadLeadsTable() {
+            if (!window.user) return; // Safeguard redirects
+            
+            allLeads = await window.getMockLeads();
+            
+            // Filter leads: Employees only see their own leads
+            if(window.user.role === 'Employee') {
+                currentLeads = allLeads.filter(l => l.createdBy === window.user.phone);
+            } else {
+                currentLeads = allLeads;
+            }
+            
+            renderTable(currentLeads);
+            
+            // Check for URL parameter to open modal
+            const urlParams = new URLSearchParams(window.location.search);
+            if(urlParams.get('add') === 'true') {
+                openLeadModal();
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        }
+
+        function renderTable(data) {
+            const tbody = document.querySelector('#leadsTable tbody');
+            const thead = document.querySelector('#leadsTable thead tr');
+            tbody.innerHTML = '';
+            
+            if (!window.user) return;
+            const isAdmin = window.user.role === 'Admin';
+            
+            // Set Header - Both roles see full table structure now, but only their own data
+            thead.innerHTML = `
+                <th>Lead ID / Date</th>
+                <th>Customer Info</th>
+                <th>Requirement</th>
+                <th>Status</th>
+                <th>Actions</th>
+            `;
+            
+            if(data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px;">No leads found.</td></tr>`;
+                return;
+            }
+
+            data.forEach(lead => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <strong>${lead.id}</strong><br>
+                        <span style="font-size:11px; color:#64748b;">${lead.createdAt}</span>
+                    </td>
+                    <td>
+                        <strong>${lead.name}</strong><br>
+                        <span style="font-size:12px; color:#64748b;"><i class="fas fa-phone-alt" style="font-size:10px;"></i> ${lead.phone}</span>
+                    </td>
+                    <td>
+                        ${lead.load ? lead.load + ' KW' : 'TBD'}<br>
+                        <span style="font-size:11px; color:#64748b;">${lead.type} • ${lead.system}</span>
+                    </td>
+                    <td>
+                        <span class="status-badge status-${lead.status.split(' ')[0].toLowerCase()}">${lead.status}</span>
+                    </td>
+                    <td class="action-btns">
+                        <button title="View/Edit" onclick="editLead('${lead.id}')"><i class="fas fa-edit"></i></button>
+                        <button title="WhatsApp" onclick="window.open('https://wa.me/${lead.phone.replace(/[^0-9]/g, '')}')"><i class="fab fa-whatsapp"></i></button>
+                        ${isAdmin ? `<button title="Delete" onclick="deleteLead('${lead.id}')"><i class="fas fa-trash-alt"></i></button>` : ''}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        // Filtering
+        document.getElementById('searchLead').addEventListener('keyup', function(e) {
+            const term = e.target.value.toLowerCase();
+            const filtered = currentLeads.filter(l => 
+                l.name.toLowerCase().includes(term) || 
+                l.phone.includes(term) || 
+                l.id.toLowerCase().includes(term)
+            );
+            renderTable(filtered);
+        });
+
+        document.getElementById('statusFilter').addEventListener('change', function(e) {
+            const status = e.target.value;
+            const filtered = status ? currentLeads.filter(l => l.status === status) : currentLeads;
+            renderTable(filtered);
+        });
+
+        // Modal Logic
+        const modal = document.getElementById('leadModal');
+        let editModeId = null;
+
+        function openLeadModal() {
+            document.getElementById('leadForm').reset();
+            document.getElementById('modalTitle').innerText = 'Add New Lead';
+            editModeId = null;
+            modal.style.display = 'flex';
+        }
+
+        function closeLeadModal() {
+            modal.style.display = 'none';
+        }
+
+        function editLead(id) {
+            const lead = allLeads.find(l => l.id === id);
+            if(lead) {
+                document.getElementById('c_name').value = lead.name;
+                document.getElementById('c_phone').value = lead.phone;
+                document.getElementById('c_email').value = lead.email || '';
+                document.getElementById('c_type').value = lead.type;
+                document.getElementById('c_address').value = lead.address || '';
+                document.getElementById('c_bill').value = lead.bill || '';
+                document.getElementById('c_load').value = lead.load || '';
+                document.getElementById('c_price').value = lead.finalPrice || '';
+                document.getElementById('c_system').value = lead.system;
+                document.getElementById('c_status').value = lead.status;
+                document.getElementById('c_notes').value = lead.notes || '';
+                
+                document.getElementById('modalTitle').innerText = 'Edit Lead: ' + id;
+                editModeId = id;
+                modal.style.display = 'flex';
+            }
+        }
+        
+        async function deleteLead(id) {
+            if(confirm('Are you sure you want to completely delete this lead? This cannot be undone.')) {
+                await window.deleteLead(id);
+                await loadLeadsTable();
+            }
+        }
+
+        async function saveLead() {
+            const form = document.getElementById('leadForm');
+            if(!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const newLead = {
+                id: editModeId || 'LD-' + Math.floor(1000 + Math.random() * 9000),
+                name: document.getElementById('c_name').value,
+                phone: document.getElementById('c_phone').value,
+                email: document.getElementById('c_email').value,
+                type: document.getElementById('c_type').value,
+                address: document.getElementById('c_address').value,
+                bill: document.getElementById('c_bill').value,
+                load: document.getElementById('c_load').value,
+                finalPrice: document.getElementById('c_price').value,
+                system: document.getElementById('c_system').value,
+                status: document.getElementById('c_status').value,
+                notes: document.getElementById('c_notes').value,
+                createdAt: editModeId ? allLeads.find(l=>l.id===editModeId).createdAt : new Date().toISOString().split('T')[0],
+                createdBy: editModeId ? allLeads.find(l=>l.id===editModeId).createdBy : window.user.phone
+            };
+
+            await window.saveLead(newLead);
+            await loadLeadsTable();
+            closeLeadModal();
+        }
+
+        function exportData() {
+            alert('Exporting data to Excel/CSV... (Mock Functionality)');
+        }
+
+        document.addEventListener('DOMContentLoaded', loadLeadsTable);
+    </script>
+</body>
+</html>

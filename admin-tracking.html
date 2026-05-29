@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Tracking | VPAT CRM</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="admin-layout.css">
+    <style>
+        .tracking-table td {
+            vertical-align: middle;
+        }
+        
+        .progress-tracker {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: relative;
+            margin: 10px 0;
+            padding: 0 10px;
+        }
+        
+        .progress-tracker::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 10px;
+            right: 10px;
+            height: 4px;
+            background: var(--admin-border);
+            transform: translateY(-50%);
+            z-index: 1;
+        }
+        
+        .step {
+            width: 25px;
+            height: 25px;
+            background: white;
+            border: 3px solid var(--admin-border);
+            border-radius: 50%;
+            z-index: 2;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            color: transparent;
+            font-weight: bold;
+            position: relative;
+        }
+        
+        .step.active {
+            border-color: var(--admin-primary);
+            background: var(--admin-primary);
+            color: white;
+        }
+        
+        .step.completed {
+            border-color: #22c55e;
+            background: #22c55e;
+            color: white;
+        }
+        
+        .step.cancelled {
+            border-color: #ef4444;
+            background: #ef4444;
+            color: white;
+        }
+        
+        .step-label {
+            position: absolute;
+            top: 30px;
+            font-size: 10px;
+            font-weight: 600;
+            color: var(--admin-text-muted);
+            white-space: nowrap;
+            text-align: center;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        
+        .tracking-select {
+            padding: 8px;
+            border: 1px solid var(--admin-border);
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            cursor: pointer;
+        }
+        
+        .tracking-select.cancelled-dropdown {
+            border-color: #ef4444;
+            color: #ef4444;
+        }
+        .tracking-select.completed-dropdown {
+            border-color: #22c55e;
+            color: #22c55e;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="admin-dashboard.html" class="logo">
+                    <i class="fa-solid fa-solar-panel"></i>
+                    <h2>VPAT CRM</h2>
+                </a>
+            </div>
+            
+            <div class="sidebar-menu">
+                <div class="menu-label admin-only">Main Menu</div>
+                <a href="admin-dashboard.html" class="menu-item admin-only">
+                    <i class="fas fa-chart-pie"></i> Dashboard
+                </a>
+                <a href="admin-leads.html" class="menu-item">
+                    <i class="fas fa-users"></i> Lead Management
+                </a>
+                
+                <div class="menu-label">Project Tracking</div>
+                <a href="admin-tracking.html" class="menu-item active">
+                    <i class="fas fa-route"></i> Installation Tracking
+                </a>
+                <a href="#" class="menu-item admin-only">
+                    <i class="fas fa-file-invoice-dollar"></i> Quotations
+                </a>
+                
+                <div class="menu-label admin-only">Admin Controls</div>
+                <a href="admin-employees.html" class="menu-item admin-only">
+                    <i class="fas fa-user-tie"></i> Employees
+                </a>
+                <a href="#" class="menu-item admin-only">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <div class="user-details">
+                        <h4 id="userName">User</h4>
+                        <span id="userRole">Role</span>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Secure Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left" style="display:flex; align-items:center;">
+                    <button class="mobile-toggle" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2>Installation Tracking Pipeline</h2>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <div class="card">
+                    <div style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--admin-border);">
+                        <p style="color: var(--admin-text-muted);">Track the physical progress of customer projects from Site Visit to Final Installation.</p>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table class="tracking-table" id="trackingTable">
+                            <thead>
+                                <tr>
+                                    <th style="width: 20%;">Customer Info</th>
+                                    <th style="width: 50%;">Progress Pipeline</th>
+                                    <th style="width: 20%;">Update Stage</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Admin Logic -->
+    <script type="module" src="admin-app.js"></script>
+    <script>
+        let allLeads = [];
+        let displayLeads = [];
+        
+        const stages = [
+            'Pending / New',
+            'Site Visited',
+            'Confirmed',
+            'Panels Delivered',
+            'Installed',
+            'Cancelled'
+        ];
+
+        async function loadTrackingTable() {
+            if (!window.user) return; // Safeguard redirects
+            
+            allLeads = await window.getMockLeads();
+            
+            // Filter leads: Employees only see their own leads
+            if(window.user.role === 'Employee') {
+                displayLeads = allLeads.filter(l => l.createdBy === window.user.phone);
+            } else {
+                displayLeads = allLeads;
+            }
+            
+            const tbody = document.querySelector('#trackingTable tbody');
+            tbody.innerHTML = '';
+            
+            if(displayLeads.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding:20px;">No projects to track.</td></tr>`;
+                return;
+            }
+
+            displayLeads.forEach(lead => {
+                const tr = document.createElement('tr');
+                
+                // Set default tracking status if undefined
+                const currentStatus = lead.trackingStatus || 'Pending / New';
+                const sIndex = stages.indexOf(currentStatus);
+                const isCancelled = currentStatus === 'Cancelled';
+                
+                // Build progress bar HTML
+                let progressHtml = `<div class="progress-tracker">`;
+                // Don't include 'Pending' or 'Cancelled' in the visual steps
+                const visualSteps = ['Site Visited', 'Confirmed', 'Panels Delivered', 'Installed'];
+                
+                visualSteps.forEach((stepName, i) => {
+                    const stepIndex = stages.indexOf(stepName);
+                    let stepClass = 'step';
+                    let icon = '';
+                    
+                    if (isCancelled) {
+                        stepClass = 'step cancelled';
+                        icon = '<i class="fas fa-times"></i>';
+                    } else if (sIndex > stepIndex) {
+                        stepClass = 'step completed';
+                        icon = '<i class="fas fa-check"></i>';
+                    } else if (sIndex === stepIndex) {
+                        stepClass = 'step active';
+                        icon = '<i class="fas fa-dot-circle"></i>';
+                    }
+                    
+                    progressHtml += `
+                        <div class="${stepClass}">
+                            ${icon}
+                            <div class="step-label">${stepName}</div>
+                        </div>
+                    `;
+                });
+                progressHtml += `</div><br>`;
+
+                // Select Dropdown
+                let selectHtml = `<select class="tracking-select ${isCancelled ? 'cancelled-dropdown' : (sIndex === 4 ? 'completed-dropdown' : '')}" onchange="updateTracking('${lead.id}', this.value)">`;
+                stages.forEach(stage => {
+                    selectHtml += `<option value="${stage}" ${currentStatus === stage ? 'selected' : ''}>${stage}</option>`;
+                });
+                selectHtml += `</select>`;
+
+                tr.innerHTML = `
+                    <td>
+                        <strong>${lead.name}</strong><br>
+                        <span style="font-size:12px; color:#64748b;">${lead.phone}</span><br>
+                        <span style="font-size:11px; font-weight:600; color:var(--admin-primary);">${lead.load ? lead.load + ' KW' : ''} ${lead.system}</span>
+                    </td>
+                    <td style="padding-top: 20px;">
+                        ${progressHtml}
+                    </td>
+                    <td>
+                        ${selectHtml}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        async function updateTracking(leadId, newStatus) {
+            const index = allLeads.findIndex(l => l.id === leadId);
+            if (index !== -1) {
+                allLeads[index].trackingStatus = newStatus;
+                // If it's a major milestone, optionally update the main lead status too
+                if(newStatus === 'Site Visited') allLeads[index].status = 'Site Visit Scheduled';
+                if(newStatus === 'Installed') allLeads[index].status = 'Completed';
+                if(newStatus === 'Cancelled') allLeads[index].status = 'Cancelled';
+                
+                await window.saveLead(allLeads[index]);
+                await loadTrackingTable();
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', loadTrackingTable);
+    </script>
+</body>
+</html>

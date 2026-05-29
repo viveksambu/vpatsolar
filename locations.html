@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customer Locations | Vital Power Advanced Technologies</title>
+    <meta name="description" content="View our widespread network of successful solar rooftop installations across Telangana and India.">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Leaflet CSS for Map -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .locations-wrapper {
+            display: flex;
+            height: 700px;
+            gap: 1.5rem;
+            margin-top: 2rem;
+            background: var(--bg-white);
+            padding: 1.5rem;
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-md);
+        }
+        .locations-sidebar {
+            flex: 0 0 350px;
+            display: flex;
+            flex-direction: column;
+            border-right: 1px solid rgba(0,0,0,0.1);
+            padding-right: 1.5rem;
+        }
+        .locations-map-container {
+            flex: 1;
+            border-radius: 8px;
+            overflow: hidden;
+            z-index: 1; /* For leaflet map stacking context */
+        }
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .filters {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid rgba(0,0,0,0.1);
+        }
+        .filter-row {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .filter-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-family: inherit;
+        }
+        
+        .customer-list {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+        
+        /* Custom scrollbar for customer list */
+        .customer-list::-webkit-scrollbar {
+            width: 6px;
+        }
+        .customer-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+        .customer-list::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 10px;
+        }
+        
+        .customer-card {
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .customer-card:hover {
+            border-color: var(--primary-color);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+            background-color: #fffaf5;
+        }
+        .customer-card.active {
+            border-color: var(--primary-color);
+            background-color: #fff0e3;
+        }
+        .customer-name {
+            font-weight: 600;
+            color: var(--dark-blue);
+            font-size: 1rem;
+            margin-bottom: 5px;
+        }
+        .customer-address {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            line-height: 1.4;
+            margin-bottom: 8px;
+        }
+        .customer-system {
+            display: inline-block;
+            background: var(--primary-color);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        
+        /* Mobile responsive */
+        @media (max-width: 992px) {
+            .locations-wrapper {
+                flex-direction: column;
+                height: auto;
+            }
+            .locations-sidebar {
+                flex: none;
+                border-right: none;
+                padding-right: 0;
+            }
+            .customer-list {
+                max-height: 400px;
+            }
+            .locations-map-container {
+                height: 400px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-solar-panel"></i>
+                <div>
+                    <h1>VPAT</h1>
+                    <span>VITAL POWER ADVANCED TECHNOLOGIES</span>
+                </div>
+            </a>
+            
+            <nav class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="about.html">About Us</a>
+                <a href="services.html">Services</a>
+                <a href="projects.html">Projects</a>
+                <a href="subsidy.html">Subsidy Info</a>
+                <a href="locations.html" class="active">Locations</a>
+                <a href="contact.html">Contact</a>
+                <a href="contact.html" class="btn btn-primary" style="color: white;">Get Free Quote</a>
+                <a href="admin-login.html" class="btn btn-outline" style="margin-left: 10px; padding: 10px 15px;" title="Employee / Admin Portal"><i class="fas fa-user-shield"></i> Portal</a>
+            </nav>
+            
+            <div class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <div class="page-header" style="background-image: linear-gradient(to right, rgba(30, 58, 138, 0.9) 0%, rgba(30, 58, 138, 0.8) 100%), url('assets/images/industrial_solar_1778999818855.png');">
+        <div class="container reveal">
+            <h1>Our Installations</h1>
+            <p style="color: white;">Explore our widespread network of successful solar projects.</p>
+        </div>
+    </div>
+
+    <section class="section-padding" style="background-color: var(--bg-light);">
+        <div class="container">
+            <div class="section-title reveal">
+                <span>Customer Locations</span>
+                <h2>Find VPAT Installations Near You</h2>
+            </div>
+            
+            <div class="locations-wrapper reveal">
+                
+                <!-- Sidebar / List -->
+                <div class="locations-sidebar">
+                    <div class="filters">
+                        <div class="filter-row">
+                            <input type="text" id="searchInput" class="filter-input" placeholder="Search by name or area...">
+                        </div>
+                        <div class="filter-row">
+                            <select id="typeFilter" class="filter-input">
+                                <option value="all">All Installation Types</option>
+                                <option value="Residential">Residential</option>
+                                <option value="Commercial">Commercial</option>
+                                <option value="Industrial">Industrial</option>
+                            </select>
+                            <button id="searchBtn" class="btn btn-primary" style="padding: 8px 15px;"><i class="fas fa-search"></i></button>
+                        </div>
+                        <p style="margin: 10px 0 0; font-size: 0.85rem; color: var(--text-light);" id="resultCount">Showing all locations</p>
+                    </div>
+                    
+                    <div class="customer-list" id="customerList">
+                        <!-- Populated by JavaScript -->
+                    </div>
+                </div>
+                
+                <!-- Map -->
+                <div class="locations-map-container">
+                    <div id="map"></div>
+                </div>
+                
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-about">
+                    <div class="logo">
+                        <i class="fa-solid fa-solar-panel"></i>
+                        <div>
+                            <h1>VPAT</h1>
+                        </div>
+                    </div>
+                    <p>Vital Power Advanced Technologies Private Limited is committed to powering a sustainable future through premium solar solutions.</p>
+                </div>
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="services.html">Our Services</a></li>
+                        <li><a href="projects.html">Projects Gallery</a></li>
+                        <li><a href="subsidy.html">Subsidy Info</a></li>
+                        <li><a href="locations.html">Locations</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                    </ul>
+                </div>
+                <div class="footer-contact">
+                    <h4>Contact Us</h4>
+                    <ul>
+                        <li><i class="fas fa-map-marker-alt"></i> <span>Plot No 4, Sy No 11/1, Bureddypally Road, Jadcherla</span></li>
+                        <li><i class="fas fa-phone-alt"></i> <span>+91 9515455449</span></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating Buttons -->
+    <a href="subsidy.html" class="floating-calc" title="Solar Calculator">
+        <i class="fas fa-calculator"></i>
+    </a>
+    <a href="https://wa.me/919515455449" target="_blank" class="floating-whatsapp" title="Chat on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+    <a href="tel:+919515455449" class="floating-call" title="Call Us Now">
+        <i class="fas fa-phone"></i>
+    </a>
+
+    <script src="script.js"></script>
+    <!-- Leaflet JS -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+    
+    <script>
+        // Customer Data (Dummy data clustered around Jadcherla & Hyderabad)
+        const customers = [
+            { id: 1, name: "Reddy Residence", address: "Bureddypally Road, Jadcherla, Telangana 509301", lat: 16.7645, lng: 78.1360, type: "Residential", size: "5 kW" },
+            { id: 2, name: "Sri Sai Enterprises", address: "Industrial Estate, Jadcherla, Telangana 509301", lat: 16.7720, lng: 78.1405, type: "Commercial", size: "25 kW" },
+            { id: 3, name: "Rao Villa", address: "Badepalle, Jadcherla, Telangana", lat: 16.7580, lng: 78.1310, type: "Residential", size: "3 kW" },
+            { id: 4, name: "Balaji Cotton Mills", address: "Polepally SEZ, Jadcherla, Telangana", lat: 16.7850, lng: 78.1150, type: "Industrial", size: "150 kW" },
+            { id: 5, name: "Kisan Solar Pump", address: "Gollapally Village, near Jadcherla", lat: 16.7400, lng: 78.1500, type: "Industrial", size: "10 HP Pump" },
+            { id: 6, name: "Hyderabad Central Mall", address: "Punjagutta, Hyderabad, Telangana", lat: 17.4265, lng: 78.4520, type: "Commercial", size: "100 kW" },
+            { id: 7, name: "Kukatpally Housing Board", address: "KPHB Colony, Hyderabad, Telangana", lat: 17.4834, lng: 78.3871, type: "Residential", size: "10 kW" },
+            { id: 8, name: "Gachibowli IT Park", address: "Gachibowli, Hyderabad, Telangana", lat: 17.4401, lng: 78.3489, type: "Commercial", size: "200 kW" },
+            { id: 9, name: "Shamshabad Logistics", address: "Airport Road, Shamshabad, Telangana", lat: 17.2625, lng: 78.3969, type: "Industrial", size: "80 kW" },
+            { id: 10, name: "Banjara Hills Bungalow", address: "Road No. 12, Banjara Hills, Hyderabad", lat: 17.4055, lng: 78.4411, type: "Residential", size: "8 kW" }
+        ];
+
+        // Initialize Map centered on Jadcherla
+        const map = L.map('map').setView([16.7634, 78.1360], 10);
+        
+        // Add OpenStreetMap tiles
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+            attribution: '© OpenStreetMap contributors'
+        }).addTo(map);
+
+        // Custom Icon
+        const solarIcon = L.divIcon({
+            html: '<i class="fas fa-map-marker-alt fa-2x" style="color: #F97316; text-shadow: 2px 2px 4px rgba(0,0,0,0.5);"></i>',
+            className: 'custom-div-icon',
+            iconSize: [30, 42],
+            iconAnchor: [15, 42]
+        });
+
+        let markers = [];
+        const customerListEl = document.getElementById('customerList');
+        const resultCountEl = document.getElementById('resultCount');
+
+        function renderCustomers(filteredData) {
+            // Clear existing
+            customerListEl.innerHTML = '';
+            markers.forEach(m => map.removeLayer(m));
+            markers = [];
+
+            if (filteredData.length === 0) {
+                customerListEl.innerHTML = '<p style="padding: 15px; color: #888;">No installations found matching your criteria.</p>';
+                resultCountEl.innerText = "0 results found";
+                return;
+            }
+
+            resultCountEl.innerText = `Showing ${filteredData.length} installation${filteredData.length > 1 ? 's' : ''}`;
+
+            const bounds = L.latLngBounds();
+
+            filteredData.forEach(customer => {
+                // Add Marker
+                const marker = L.marker([customer.lat, customer.lng], {icon: solarIcon}).addTo(map);
+                marker.bindPopup(`<b>${customer.name}</b><br>${customer.type} - ${customer.size}`);
+                markers.push({ id: customer.id, marker: marker });
+                bounds.extend([customer.lat, customer.lng]);
+
+                // Add List Item
+                const card = document.createElement('div');
+                card.className = 'customer-card';
+                card.innerHTML = `
+                    <div class="customer-name">${customer.name}</div>
+                    <div class="customer-address"><i class="fas fa-map-pin" style="color:var(--primary-color); margin-right:5px;"></i> ${customer.address}</div>
+                    <div class="customer-system">${customer.type} • ${customer.size}</div>
+                `;
+                
+                card.addEventListener('click', () => {
+                    // Remove active from all
+                    document.querySelectorAll('.customer-card').forEach(c => c.classList.remove('active'));
+                    card.classList.add('active');
+                    
+                    // Fly to marker and open popup
+                    map.flyTo([customer.lat, customer.lng], 14, { duration: 1.5 });
+                    setTimeout(() => marker.openPopup(), 1500);
+                });
+
+                customerListEl.appendChild(card);
+            });
+
+            // Fit map to bounds if there are markers
+            if (filteredData.length > 0) {
+                map.fitBounds(bounds, { padding: [50, 50] });
+            }
+        }
+
+        // Initial Render
+        renderCustomers(customers);
+
+        // Filter Logic
+        function applyFilters() {
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            const typeFilter = document.getElementById('typeFilter').value;
+
+            const filtered = customers.filter(c => {
+                const matchesSearch = c.name.toLowerCase().includes(searchTerm) || c.address.toLowerCase().includes(searchTerm);
+                const matchesType = typeFilter === 'all' || c.type === typeFilter;
+                return matchesSearch && matchesType;
+            });
+
+            renderCustomers(filtered);
+        }
+
+        document.getElementById('searchInput').addEventListener('keyup', applyFilters);
+        document.getElementById('typeFilter').addEventListener('change', applyFilters);
+        document.getElementById('searchBtn').addEventListener('click', applyFilters);
+
+    </script>
+</body>
+</html>

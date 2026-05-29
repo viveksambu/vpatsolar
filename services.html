@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Services | Vital Power Advanced Technologies</title>
+    <meta name="description" content="Explore our premium solar services including residential, commercial, industrial, solar pumps, and EV charging solutions in Telangana.">
+    
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="styles.css">
+
+    <style>
+        .service-detail-card {
+            background: var(--bg-white);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-md);
+            margin-bottom: 4rem;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            transition: var(--transition);
+            border: 1px solid rgba(0,0,0,0.05);
+        }
+        .service-detail-card:nth-child(even) {
+            direction: rtl;
+        }
+        .service-detail-card:nth-child(even) .service-content {
+            direction: ltr;
+        }
+        .service-image {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            min-height: 400px;
+        }
+        .service-content {
+            padding: 3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        .service-content h2 {
+            color: var(--primary-color);
+            margin-bottom: 1rem;
+        }
+        .service-features {
+            margin: 1.5rem 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+        .service-features li {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: 500;
+        }
+        .service-features li i {
+            color: var(--green-accent);
+        }
+        @media (max-width: 992px) {
+            .service-detail-card {
+                grid-template-columns: 1fr;
+            }
+            .service-detail-card:nth-child(even) {
+                direction: ltr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Header Navigation -->
+    <header>
+        <div class="container nav-container">
+            <a href="index.html" class="logo">
+                <i class="fa-solid fa-solar-panel"></i>
+                <div>
+                    <h1>VPAT</h1>
+                    <span>VITAL POWER ADVANCED TECHNOLOGIES</span>
+                </div>
+            </a>
+            
+            <nav class="nav-links">
+                <a href="index.html">Home</a>
+                <a href="about.html">About Us</a>
+                <a href="services.html" class="active">Services</a>
+                <a href="projects.html">Projects</a>
+                <a href="subsidy.html">Subsidy Info</a>
+                <a href="locations.html">Locations</a>
+                <a href="contact.html">Contact</a>
+                <a href="contact.html" class="btn btn-primary" style="color: white;">Get Free Quote</a>
+                <a href="admin-login.html" class="btn btn-outline" style="margin-left: 10px; padding: 10px 15px;" title="Employee / Admin Portal"><i class="fas fa-user-shield"></i> Portal</a>
+            </nav>
+            
+            <div class="mobile-menu-btn">
+                <i class="fas fa-bars"></i>
+            </div>
+        </div>
+    </header>
+
+    <!-- Page Header -->
+    <div class="page-header" style="background-image: linear-gradient(to right, rgba(30, 58, 138, 0.9) 0%, rgba(30, 58, 138, 0.8) 100%), url('assets/images/commercial_solar_1778999803634.png');">
+        <div class="container reveal">
+            <h1>Our Services</h1>
+            <p style="color: white;">Comprehensive solar energy solutions tailored to your specific needs.</p>
+        </div>
+    </div>
+
+    <!-- Services Details Section -->
+    <section class="section-padding">
+        <div class="container">
+            
+            <!-- Residential -->
+            <div class="service-detail-card reveal">
+                <img src="assets/images/residential_solar_1778999558829.png" class="service-image" alt="Residential Solar">
+                <div class="service-content">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 1rem;">
+                        <i class="fas fa-home" style="font-size: 2rem; color: var(--dark-blue);"></i>
+                        <h2 style="margin: 0;">Residential Solar</h2>
+                    </div>
+                    <p>Transform your home into a powerhouse. Our residential rooftop solar systems are designed to eliminate your electricity bills while increasing the value of your property. We handle everything from government subsidy claims to seamless installation.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check-circle"></i> Zero Electricity Bills</li>
+                        <li><i class="fas fa-check-circle"></i> Government Subsidy Applicable</li>
+                        <li><i class="fas fa-check-circle"></i> 25 Years Warranty</li>
+                        <li><i class="fas fa-check-circle"></i> Easy Financing Options</li>
+                    </ul>
+                    <a href="contact.html?service=residential" class="btn btn-primary" style="width: fit-content; margin-top: 1rem;">Get Residential Quote</a>
+                </div>
+            </div>
+
+            <!-- Commercial -->
+            <div class="service-detail-card reveal">
+                <img src="assets/images/commercial_solar_1778999803634.png" class="service-image" alt="Commercial Solar">
+                <div class="service-content">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 1rem;">
+                        <i class="fas fa-building" style="font-size: 2rem; color: var(--dark-blue);"></i>
+                        <h2 style="margin: 0;">Commercial Solar</h2>
+                    </div>
+                    <p>Drive down operational costs and boost your company's green credentials. We provide scalable solar solutions for offices, malls, hospitals, and educational institutions, guaranteeing a high Return on Investment (ROI) and accelerated depreciation benefits.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check-circle"></i> High ROI (3-4 Years)</li>
+                        <li><i class="fas fa-check-circle"></i> Tax Benefits (Accelerated Depreciation)</li>
+                        <li><i class="fas fa-check-circle"></i> Uninterrupted Power</li>
+                        <li><i class="fas fa-check-circle"></i> Boost Green Corporate Image</li>
+                    </ul>
+                    <a href="contact.html?service=commercial" class="btn btn-primary" style="width: fit-content; margin-top: 1rem;">Get Commercial Quote</a>
+                </div>
+            </div>
+
+            <!-- Industrial -->
+            <div class="service-detail-card reveal">
+                <img src="assets/images/industrial_solar_1778999818855.png" class="service-image" alt="Industrial Solar">
+                <div class="service-content">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 1rem;">
+                        <i class="fas fa-industry" style="font-size: 2rem; color: var(--dark-blue);"></i>
+                        <h2 style="margin: 0;">Industrial Solar</h2>
+                    </div>
+                    <p>For large-scale manufacturing units and factories, energy costs are a major expense. Our industrial-grade megawatt-scale solar installations ensure massive savings, optimized roof utilization, and compliance with ESG goals.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check-circle"></i> Megawatt Scale Execution</li>
+                        <li><i class="fas fa-check-circle"></i> Custom Engineering Design</li>
+                        <li><i class="fas fa-check-circle"></i> Opex & Capex Models</li>
+                        <li><i class="fas fa-check-circle"></i> Heavy-duty Mounting Structures</li>
+                    </ul>
+                    <a href="contact.html?service=industrial" class="btn btn-primary" style="width: fit-content; margin-top: 1rem;">Consult Our Experts</a>
+                </div>
+            </div>
+
+            <!-- Solar Pumps -->
+            <div class="service-detail-card reveal">
+                <img src="assets/images/solar_pump_1778999851489.png" class="service-image" alt="Solar Water Pumps">
+                <div class="service-content">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 1rem;">
+                        <i class="fas fa-water" style="font-size: 2rem; color: var(--dark-blue);"></i>
+                        <h2 style="margin: 0;">Solar Water Pumps</h2>
+                    </div>
+                    <p>Empowering the agricultural backbone of India. Our solar water pumping solutions provide highly reliable irrigation without the dependence on erratic grid power or expensive diesel generators.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check-circle"></i> Independent of Grid</li>
+                        <li><i class="fas fa-check-circle"></i> Zero Fuel Costs</li>
+                        <li><i class="fas fa-check-circle"></i> PM-KUSUM Subsidy Support</li>
+                        <li><i class="fas fa-check-circle"></i> Low Maintenance</li>
+                    </ul>
+                    <a href="contact.html?service=solarPump" class="btn btn-primary" style="width: fit-content; margin-top: 1rem;">Enquire Now</a>
+                </div>
+            </div>
+
+            <!-- EV Charging -->
+            <div class="service-detail-card reveal">
+                <img src="assets/images/ev_charging_1778999901911.png" class="service-image" alt="EV Charging Station">
+                <div class="service-content">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 1rem;">
+                        <i class="fas fa-charging-station" style="font-size: 2rem; color: var(--dark-blue);"></i>
+                        <h2 style="margin: 0;">EV Charging Solutions</h2>
+                    </div>
+                    <p>Drive the future of mobility. We integrate solar carports and rooftop systems with state-of-the-art EV charging infrastructure, ensuring your electric vehicles run on 100% truly clean energy.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check-circle"></i> Fast Charging Integrated</li>
+                        <li><i class="fas fa-check-circle"></i> Solar Carport Designs</li>
+                        <li><i class="fas fa-check-circle"></i> True Zero Emission</li>
+                        <li><i class="fas fa-check-circle"></i> Commercial & Residential</li>
+                    </ul>
+                    <a href="contact.html?service=evCharging" class="btn btn-primary" style="width: fit-content; margin-top: 1rem;">Get EV Setup</a>
+                </div>
+            </div>
+
+            <!-- Maintenance & AMC -->
+            <div class="service-detail-card reveal">
+                <div style="background: var(--dark-blue); height: 100%; display: flex; align-items: center; justify-content: center; min-height: 400px;">
+                    <i class="fas fa-tools" style="font-size: 8rem; color: var(--secondary-color);"></i>
+                </div>
+                <div class="service-content">
+                    <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 1rem;">
+                        <i class="fas fa-wrench" style="font-size: 2rem; color: var(--dark-blue);"></i>
+                        <h2 style="margin: 0;">Maintenance & AMC</h2>
+                    </div>
+                    <p>To ensure your solar plant operates at peak generation capacity, regular maintenance is vital. We offer comprehensive Annual Maintenance Contracts (AMC) including robotic cleaning, thermal imaging, and real-time app monitoring.</p>
+                    <ul class="service-features">
+                        <li><i class="fas fa-check-circle"></i> Remote 24/7 Monitoring</li>
+                        <li><i class="fas fa-check-circle"></i> Professional Panel Cleaning</li>
+                        <li><i class="fas fa-check-circle"></i> Preventive Maintenance</li>
+                        <li><i class="fas fa-check-circle"></i> Performance Analysis</li>
+                    </ul>
+                    <a href="contact.html?service=maintenance" class="btn btn-primary" style="width: fit-content; margin-top: 1rem;">Book Maintenance</a>
+                </div>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-about">
+                    <div class="logo">
+                        <i class="fa-solid fa-solar-panel"></i>
+                        <div>
+                            <h1>VPAT</h1>
+                        </div>
+                    </div>
+                    <p>Vital Power Advanced Technologies Private Limited is committed to powering a sustainable future through premium solar solutions.</p>
+                    <div class="social-links">
+                        <a href="#"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#"><i class="fab fa-twitter"></i></a>
+                        <a href="#"><i class="fab fa-instagram"></i></a>
+                        <a href="#"><i class="fab fa-linkedin-in"></i></a>
+                    </div>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="about.html">About Us</a></li>
+                        <li><a href="services.html">Our Services</a></li>
+                        <li><a href="projects.html">Projects Gallery</a></li>
+                        <li><a href="subsidy.html">Subsidy Info</a></li>
+                        <li><a href="locations.html">Locations</a></li>
+                        <li><a href="contact.html">Contact Us</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-links">
+                    <h4>Our Services</h4>
+                    <ul>
+                        <li><a href="services.html">Residential Solar</a></li>
+                        <li><a href="services.html">Commercial Solar</a></li>
+                        <li><a href="services.html">Industrial Solar</a></li>
+                        <li><a href="services.html">Solar Water Pumps</a></li>
+                        <li><a href="services.html">EV Charging</a></li>
+                    </ul>
+                </div>
+                
+                <div class="footer-contact">
+                    <h4>Contact Us</h4>
+                    <ul>
+                        <li><i class="fas fa-map-marker-alt"></i> <span>Plot No 4, Sy No 11/1, Bureddypally Road, Jadcherla, Telangana, India</span></li>
+                        <li><i class="fas fa-phone-alt"></i> <span>+91 9515455449</span></li>
+                        <li><i class="fas fa-envelope"></i> <span><a href="mailto:vpat@gmail.com" style="color: inherit;">vpat@gmail.com</a></span></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Vital Power Advanced Technologies Private Limited. All Rights Reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Floating Buttons -->
+    <a href="subsidy.html" class="floating-calc" title="Solar Calculator">
+        <i class="fas fa-calculator"></i>
+    </a>
+    <a href="https://wa.me/919515455449" target="_blank" class="floating-whatsapp" title="Chat on WhatsApp">
+        <i class="fab fa-whatsapp"></i>
+    </a>
+    <a href="tel:+919515455449" class="floating-call" title="Call Us Now">
+        <i class="fas fa-phone"></i>
+    </a>
+
+    <script src="script.js"></script>
+</body>
+</html>

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard | VPAT CRM</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="admin-layout.css">
+    <!-- Chart.js for analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="admin-dashboard.html" class="logo">
+                    <i class="fa-solid fa-solar-panel"></i>
+                    <h2>VPAT CRM</h2>
+                </a>
+            </div>
+            
+            <div class="sidebar-menu">
+                <div class="menu-label">Main Menu</div>
+                <a href="admin-dashboard.html" class="menu-item active">
+                    <i class="fas fa-chart-pie"></i> Dashboard
+                </a>
+                <a href="admin-leads.html" class="menu-item">
+                    <i class="fas fa-users"></i> Lead Management
+                </a>
+                
+                <div class="menu-label">Project Tracking</div>
+                <a href="admin-tracking.html" class="menu-item">
+                    <i class="fas fa-route"></i> Installation Tracking
+                </a>
+                <a href="#" class="menu-item admin-only">
+                    <i class="fas fa-file-invoice-dollar"></i> Quotations
+                </a>
+                
+                <div class="menu-label">Admin Controls</div>
+                <a href="admin-employees.html" class="menu-item">
+                    <i class="fas fa-user-tie"></i> Employees
+                </a>
+                <a href="#" class="menu-item">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <div class="user-details">
+                        <h4 id="userName">Admin User</h4>
+                        <span id="userRole">Administrator</span>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Secure Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <!-- Topbar -->
+            <header class="topbar">
+                <div class="topbar-left" style="display:flex; align-items:center;">
+                    <button class="mobile-toggle" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2>Overview</h2>
+                </div>
+                <div class="topbar-right">
+                    <button class="topbar-btn" title="Add New Lead" onclick="window.location.href='admin-leads.html?add=true'">
+                        <i class="fas fa-plus-circle" style="color: var(--admin-primary);"></i>
+                    </button>
+                    <button class="topbar-btn">
+                        <i class="fas fa-bell"></i>
+                        <span class="badge">3</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dashboard Content -->
+            <div class="content-wrapper">
+                
+                <!-- Stats Row -->
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(30, 58, 138, 0.1); color: var(--admin-secondary);">
+                            <i class="fas fa-users"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="statTotalLeads">124</h3>
+                            <p>Total Leads</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(249, 115, 22, 0.1); color: var(--admin-primary);">
+                            <i class="fas fa-clock"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="statPending">28</h3>
+                            <p>Pending Follow-ups</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(34, 197, 94, 0.1); color: #22c55e;">
+                            <i class="fas fa-check-circle"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="statCompleted">45</h3>
+                            <p>Completed Installs</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(168, 85, 247, 0.1); color: #a855f7;">
+                            <i class="fas fa-rupee-sign"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="statRevenue">₹0</h3>
+                            <p>Total Sales Value</p>
+                        </div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon" style="background: rgba(34, 197, 94, 0.1); color: #22c55e;">
+                            <i class="fas fa-bolt"></i>
+                        </div>
+                        <div class="stat-info">
+                            <h3 id="statKW">0</h3>
+                            <p>KW Installed (Total)</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts & Tables -->
+                <div class="dashboard-row">
+                    <!-- Chart -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Monthly Lead Generation</h3>
+                            <select class="form-control" style="width: auto; padding: 5px 10px;">
+                                <option>2026</option>
+                                <option>2025</option>
+                            </select>
+                        </div>
+                        <canvas id="leadsChart" height="100"></canvas>
+                    </div>
+                    
+                    <!-- Recent Activity -->
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>Recent Leads</h3>
+                            <a href="admin-leads.html" style="font-size: 12px; color: var(--admin-primary); text-decoration:none;">View All</a>
+                        </div>
+                        <div class="table-responsive">
+                            <table id="recentLeadsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Customer</th>
+                                        <th>Status</th>
+                                        <th>Requirement</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Populated by JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- Admin Logic -->
+    <script type="module" src="admin-app.js"></script>
+    <script>
+        // Initialize Chart
+        const ctx = document.getElementById('leadsChart').getContext('2d');
+        const leadsChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+                datasets: [{
+                    label: 'New Leads',
+                    data: [12, 19, 15, 25, 22, 30],
+                    borderColor: '#F97316',
+                    backgroundColor: 'rgba(249, 115, 22, 0.1)',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.4
+                }]
+            },
+            options: {
+                responsive: true,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { beginAtZero: true, grid: { borderDash: [5, 5] } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+
+        // Load recent leads
+        async function loadRecentLeads() {
+            if (!window.user) return; // Guard against redirects
+            
+            const leads = await window.getMockLeads();
+            const tbody = document.querySelector('#recentLeadsTable tbody');
+            tbody.innerHTML = '';
+            
+            leads.slice(0, 5).forEach(lead => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td>
+                        <strong>${lead.name}</strong><br>
+                        <span style="font-size:11px; color:#64748b;">${lead.phone}</span>
+                    </td>
+                    <td><span class="status-badge status-${lead.status.toLowerCase().replace(' ', '-')}">${lead.status}</span></td>
+                    <td>${lead.load} KW<br><span style="font-size:11px; color:#64748b;">${lead.type}</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+            
+            // Update Stats
+            document.getElementById('statTotalLeads').innerText = leads.length;
+            document.getElementById('statPending').innerText = leads.filter(l => l.status === 'New Lead' || l.status === 'Contacted').length;
+            document.getElementById('statCompleted').innerText = leads.filter(l => l.status === 'Completed' || (l.trackingStatus && l.trackingStatus === 'Installed')).length;
+            
+            let totalSales = 0;
+            let totalKW = 0;
+            leads.forEach(l => {
+                if(l.finalPrice && !isNaN(l.finalPrice)) {
+                    totalSales += parseFloat(l.finalPrice);
+                }
+                if(l.load && !isNaN(l.load) && (l.status === 'Completed' || (l.trackingStatus && l.trackingStatus === 'Installed'))) {
+                    totalKW += parseFloat(l.load);
+                }
+            });
+            const formattedSales = new Intl.NumberFormat('en-IN', {
+                style: 'currency',
+                currency: 'INR',
+                maximumFractionDigits: 0
+            }).format(totalSales);
+            document.getElementById('statRevenue').innerText = formattedSales;
+            document.getElementById('statKW').innerText = totalKW;
+        }
+
+        document.addEventListener('DOMContentLoaded', loadRecentLeads);
+    </script>
+</body>
+</html>

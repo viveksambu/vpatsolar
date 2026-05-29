@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Employee Login | VPAT CRM</title>
+
+<link rel="stylesheet"
+href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+<link rel="stylesheet" href="admin-layout.css">
+</head>
+
+<body>
+
+<div class="auth-container">
+
+<div class="auth-card">
+
+<div class="auth-logo">
+<i class="fa-solid fa-solar-panel"></i>
+<h1>VPAT CRM</h1>
+</div>
+
+<h2 class="auth-title" id="loginTitle">
+Employee Login
+</h2>
+
+<div class="login-tabs">
+
+<button
+type="button"
+class="tab-btn active"
+id="tabEmployee">
+
+Employee
+
+</button>
+
+<button
+type="button"
+class="tab-btn"
+id="tabAdmin">
+
+Owner
+
+</button>
+
+</div>
+
+<form id="loginForm">
+
+<div class="form-group">
+
+<label>
+Registered Mobile Number
+</label>
+
+<input
+type="tel"
+id="phone"
+class="form-control"
+placeholder="Mobile number"
+required>
+
+</div>
+
+<div class="form-group">
+
+<label>
+Password
+</label>
+
+<input
+type="password"
+id="password"
+class="form-control"
+placeholder="••••••••"
+required>
+
+</div>
+
+<button
+type="submit"
+class="btn-admin">
+
+Verify & Secure Login
+
+</button>
+
+</form>
+
+<div class="auth-links">
+
+<br>
+
+<a href="index.html"
+style="color: var(--admin-text-muted);">
+
+<i class="fas fa-arrow-left"></i>
+
+Back to Main Website
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+<script type="module">
+
+import { db } from "./firebase-config.js";
+
+import {
+collection,
+getDocs
+}
+from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+let currentLoginType = "Employee";
+
+const tabEmployee =
+document.getElementById("tabEmployee");
+
+const tabAdmin =
+document.getElementById("tabAdmin");
+
+tabEmployee.addEventListener("click", () => {
+
+currentLoginType = "Employee";
+
+document.getElementById("loginTitle").innerText =
+"Employee Login";
+
+tabEmployee.classList.add("active");
+tabAdmin.classList.remove("active");
+
+});
+
+tabAdmin.addEventListener("click", () => {
+
+currentLoginType = "Admin";
+
+document.getElementById("loginTitle").innerText =
+"Owner Login";
+
+tabAdmin.classList.add("active");
+tabEmployee.classList.remove("active");
+
+});
+
+document.getElementById("loginForm")
+.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    const phone = document.getElementById("phone").value.trim();
+    const password = document.getElementById("password").value.trim();
+
+    const defaultUsers = [
+        {
+            id: 'EMP-001',
+            name: 'VPAT Owner',
+            phone: '9515455449',
+            password: 'admin',
+            role: 'Admin',
+            status: 'Active'
+        },
+        {
+            id: 'EMP-002',
+            name: 'Test Employee',
+            phone: '1234567890',
+            password: 'vpatemp1',
+            role: 'Employee',
+            status: 'Active'
+        }
+    ];
+
+    try {
+        let foundUser = null;
+        let isFirebaseActive = false;
+
+        try {
+            // Attempt to query Firebase
+            const snapshot = await getDocs(collection(db, "users"));
+            isFirebaseActive = true;
+            
+            let usersList = [];
+            snapshot.forEach((doc) => {
+                usersList.push(doc.data());
+            });
+
+            // Seed if Firestore has 0 users
+            if (usersList.length === 0) {
+                console.log("Empty Firestore users. Seeding default accounts...");
+                const { doc, setDoc } = await import("https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js");
+                for (const u of defaultUsers) {
+                    await setDoc(doc(db, "users", u.id), u);
+                }
+                foundUser = defaultUsers.find(u => u.phone === phone && u.password === password);
+            } else {
+                foundUser = usersList.find(u => u.phone === phone && u.password === password && u.status === 'Active');
+            }
+        } catch (firebaseErr) {
+            console.warn("Firebase query failed, using localStorage/default credential fallback:", firebaseErr);
+        }
+
+        // Fallback to local accounts if Firebase fails or user not found there
+        if (!foundUser) {
+            const localUsers = JSON.parse(localStorage.getItem("vpat_users")) || defaultUsers;
+            foundUser = localUsers.find(u => u.phone === phone && u.password === password && u.status === 'Active');
+        }
+
+        if (!foundUser) {
+            alert("Invalid Phone Number or Password");
+            return;
+        }
+
+        if (currentLoginType === "Admin" && foundUser.role !== "Admin") {
+            alert("Owner Login Required");
+            return;
+        }
+
+        if (currentLoginType === "Employee" && foundUser.role !== "Employee") {
+            alert("Employee Login Required");
+            return;
+        }
+
+        // Cache session and local list
+        localStorage.setItem("vpat_admin_auth", JSON.stringify(foundUser));
+        
+        // Synced local database backup
+        let localUsers = JSON.parse(localStorage.getItem("vpat_users")) || defaultUsers;
+        if (!localUsers.find(u => u.id === foundUser.id)) {
+            localUsers.push(foundUser);
+            localStorage.setItem("vpat_users", JSON.stringify(localUsers));
+        }
+
+        alert("Login Successful");
+
+        if (foundUser.role === "Admin") {
+            window.location.href = "admin-dashboard.html";
+        } else {
+            window.location.href = "admin-leads.html";
+        }
+    } catch (error) {
+        console.error(error);
+        alert("An unexpected login error occurred");
+    }
+});
+
+</script>
+
+</body>
+</html>

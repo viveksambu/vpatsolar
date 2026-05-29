@@ -1,0 +1,315 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Management | VPAT CRM</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="admin-layout.css">
+    <style>
+        .filter-bar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        /* Modal Styles */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+        .modal {
+            background: white;
+            width: 90%;
+            max-width: 500px;
+            border-radius: var(--radius-lg);
+            box-shadow: var(--shadow-lg);
+        }
+        .modal-header {
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--admin-border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: var(--admin-text-muted);
+        }
+        .modal-body {
+            padding: 25px;
+        }
+        .modal-footer {
+            padding: 20px 25px;
+            border-top: 1px solid var(--admin-border);
+            display: flex;
+            justify-content: flex-end;
+            gap: 15px;
+        }
+        .btn-outline {
+            padding: 10px 20px;
+            border: 1px solid var(--admin-border);
+            background: white;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        
+        .action-btns button {
+            background: none;
+            border: none;
+            color: var(--admin-text-muted);
+            margin: 0 5px;
+            cursor: pointer;
+            font-size: 1rem;
+            padding: 5px;
+        }
+        .action-btns button:hover {
+            color: var(--admin-primary);
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-header">
+                <a href="admin-dashboard.html" class="logo">
+                    <i class="fa-solid fa-solar-panel"></i>
+                    <h2>VPAT CRM</h2>
+                </a>
+            </div>
+            
+            <div class="sidebar-menu">
+                <div class="menu-label admin-only">Main Menu</div>
+                <a href="admin-dashboard.html" class="menu-item admin-only">
+                    <i class="fas fa-chart-pie"></i> Dashboard
+                </a>
+                <a href="admin-leads.html" class="menu-item">
+                    <i class="fas fa-users"></i> Lead Management
+                </a>
+                
+                <div class="menu-label">Project Tracking</div>
+                <a href="admin-tracking.html" class="menu-item">
+                    <i class="fas fa-route"></i> Installation Tracking
+                </a>
+                <a href="#" class="menu-item admin-only">
+                    <i class="fas fa-file-invoice-dollar"></i> Quotations
+                </a>
+                
+                <div class="menu-label admin-only">Admin Controls</div>
+                <a href="admin-employees.html" class="menu-item active admin-only">
+                    <i class="fas fa-user-tie"></i> Employees
+                </a>
+                <a href="#" class="menu-item admin-only">
+                    <i class="fas fa-cog"></i> Settings
+                </a>
+            </div>
+            
+            <div class="sidebar-footer">
+                <div class="user-info">
+                    <div class="user-avatar" id="userAvatar">A</div>
+                    <div class="user-details">
+                        <h4 id="userName">Admin User</h4>
+                        <span id="userRole">Administrator</span>
+                    </div>
+                </div>
+                <button class="logout-btn" onclick="logout()">
+                    <i class="fas fa-sign-out-alt"></i> Secure Logout
+                </button>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="topbar">
+                <div class="topbar-left" style="display:flex; align-items:center;">
+                    <button class="mobile-toggle" onclick="toggleSidebar()">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <h2>Employee Access Control</h2>
+                </div>
+                <div class="topbar-right">
+                    <button class="btn-admin" style="padding: 8px 15px; font-size:13px;" onclick="openEmpModal()">
+                        <i class="fas fa-user-plus"></i> Add Employee
+                    </button>
+                </div>
+            </header>
+
+            <div class="content-wrapper">
+                <div class="card">
+                    <div style="margin-bottom: 20px; padding-bottom: 15px; border-bottom: 1px solid var(--admin-border);">
+                        <p style="color: var(--admin-text-muted);">Manage employee access to the CRM. Employees can only login if their phone number is registered here.</p>
+                    </div>
+
+                    <div class="table-responsive">
+                        <table id="empTable">
+                            <thead>
+                                <tr>
+                                    <th>Employee ID</th>
+                                    <th>Name</th>
+                                    <th>Registered Mobile Number</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit Employee Modal -->
+    <div class="modal-overlay" id="empModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 id="modalTitle">Add New Employee</h3>
+                <button class="modal-close" onclick="closeEmpModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="empForm">
+                    <div class="form-group">
+                        <label>Full Name *</label>
+                        <input type="text" id="e_name" class="form-control" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Mobile Number (For Login) *</label>
+                        <input type="tel" id="e_phone" class="form-control" placeholder="10-digit number" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Login Password *</label>
+                        <input type="text" id="e_password" class="form-control" placeholder="Assign a secure password" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Role / Access Level *</label>
+                        <select id="e_role" class="form-control" required>
+                            <option value="Employee">Employee (Restricted Access)</option>
+                            <option value="Admin">Admin (Full Owner Access)</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Account Status *</label>
+                        <select id="e_status" class="form-control" required>
+                            <option value="Active">Active</option>
+                            <option value="Inactive">Inactive (Login Disabled)</option>
+                        </select>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-outline" onclick="closeEmpModal()">Cancel</button>
+                <button class="btn-admin" style="width:auto; padding: 10px 25px;" onclick="saveEmployee()">Save Employee</button>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="admin-app.js"></script>
+    <script>
+        let currentUsers = [];
+        let editModeId = null;
+
+        async function loadTable() {
+            if (!window.user) return; // Safeguard redirects
+            
+            currentUsers = await window.getMockUsers();
+            const tbody = document.querySelector('#empTable tbody');
+            tbody.innerHTML = '';
+
+            currentUsers.forEach(emp => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><strong>${emp.id}</strong></td>
+                    <td>${emp.name}</td>
+                    <td><i class="fas fa-mobile-alt" style="color:var(--admin-primary); margin-right:5px;"></i> ${emp.phone}</td>
+                    <td><span style="background: ${emp.role === 'Admin' ? '#fee2e2; color: #b91c1c;' : '#e0e7ff; color: #4338ca;'} padding: 4px 10px; border-radius: 50px; font-size: 11px; font-weight: 600;">${emp.role}</span></td>
+                    <td><span style="background: ${emp.status === 'Active' ? '#dcfce7; color: #15803d;' : '#f3f4f6; color: #6b7280;'} padding: 4px 10px; border-radius: 50px; font-size: 11px; font-weight: 600;">${emp.status}</span></td>
+                    <td class="action-btns">
+                        <button title="Edit" onclick="editEmp('${emp.id}')"><i class="fas fa-edit"></i></button>
+                        ${emp.id !== 'EMP-001' ? `<button title="Delete" onclick="deleteEmp('${emp.id}')"><i class="fas fa-trash-alt"></i></button>` : ''}
+                    </td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        const modal = document.getElementById('empModal');
+
+        function openEmpModal() {
+            document.getElementById('empForm').reset();
+            document.getElementById('modalTitle').innerText = 'Add New Employee';
+            editModeId = null;
+            modal.style.display = 'flex';
+        }
+
+        function closeEmpModal() {
+            modal.style.display = 'none';
+        }
+
+        function editEmp(id) {
+            const emp = currentUsers.find(e => e.id === id);
+            if(emp) {
+                document.getElementById('e_name').value = emp.name;
+                document.getElementById('e_phone').value = emp.phone;
+                document.getElementById('e_password').value = emp.password || '';
+                document.getElementById('e_role').value = emp.role;
+                document.getElementById('e_status').value = emp.status;
+                
+                document.getElementById('modalTitle').innerText = 'Edit Employee';
+                editModeId = id;
+                modal.style.display = 'flex';
+            }
+        }
+
+        async function deleteEmp(id) {
+            if(confirm('Are you sure you want to remove this employee? They will no longer be able to login.')) {
+                await window.deleteUser(id);
+                await loadTable();
+            }
+        }
+
+        async function saveEmployee() {
+            const form = document.getElementById('empForm');
+            if(!form.checkValidity()) {
+                form.reportValidity();
+                return;
+            }
+
+            const phone = document.getElementById('e_phone').value.trim();
+            
+            // Ensure no duplicate phones (unless editing same user)
+            const exists = currentUsers.find(u => u.phone === phone && u.id !== editModeId);
+            if(exists) {
+                alert('An employee with this mobile number is already registered.');
+                return;
+            }
+
+            const newEmp = {
+                id: editModeId || 'EMP-' + Math.floor(100 + Math.random() * 900),
+                name: document.getElementById('e_name').value.trim(),
+                phone: phone,
+                password: document.getElementById('e_password').value.trim(),
+                role: document.getElementById('e_role').value,
+                status: document.getElementById('e_status').value
+            };
+
+            await window.saveUser(newEmp);
+            await loadTable();
+            closeEmpModal();
+        }
+
+        document.addEventListener('DOMContentLoaded', loadTable);
+    </script>
+</body>
+</html>
