@@ -442,30 +442,68 @@
             }
         }
 
-        async function saveLead() {
-            const form = document.getElementById('leadForm');
-            if(!form.checkValidity()) {
-                form.reportValidity();
-                return;
-            }
+       async function saveLead() {
+    if (isSaving) return;
 
-            const newLead = {
-                id: editModeId || 'LD-' + Math.floor(1000 + Math.random() * 9000),
-                name: document.getElementById('c_name').value,
-                phone: document.getElementById('c_phone').value,
-                email: document.getElementById('c_email').value,
-                type: document.getElementById('c_type').value,
-                address: document.getElementById('c_address').value,
-                bill: document.getElementById('c_bill').value,
-                load: document.getElementById('c_load').value,
-                finalPrice: document.getElementById('c_price').value,
-                system: document.getElementById('c_system').value,
-                status: document.getElementById('c_status').value,
-                notes: document.getElementById('c_notes').value,
-                createdAt: editModeId ? allLeads.find(l=>l.id===editModeId).createdAt : new Date().toISOString().split('T')[0],
-                createdBy: editModeId ? allLeads.find(l=>l.id===editModeId).createdBy : window.user.phone
-            };
+    const form = document.getElementById('leadForm');
 
+    if (!form.checkValidity()) {
+        form.reportValidity();
+        return;
+    }
+
+    isSaving = true;
+
+    const saveBtn = document.querySelector('.modal-footer .btn-admin');
+    const originalText = saveBtn.innerHTML;
+
+    saveBtn.disabled = true;
+    saveBtn.innerHTML = 'Saving...';
+
+    try {
+        const existingLead = editModeId
+            ? allLeads.find(l => l.id === editModeId)
+            : null;
+
+        const newLead = {
+            id: editModeId || 'LD-' + Date.now(),
+            name: document.getElementById('c_name').value.trim(),
+            phone: document.getElementById('c_phone').value.trim(),
+            email: document.getElementById('c_email').value.trim(),
+            type: document.getElementById('c_type').value,
+            address: document.getElementById('c_address').value.trim(),
+            bill: document.getElementById('c_bill').value,
+            load: document.getElementById('c_load').value,
+            finalPrice: document.getElementById('c_price').value,
+            system: document.getElementById('c_system').value,
+            status: document.getElementById('c_status').value,
+            notes: document.getElementById('c_notes').value.trim(),
+            createdAt: existingLead
+                ? existingLead.createdAt
+                : new Date().toISOString().split('T')[0],
+            createdBy: existingLead
+                ? existingLead.createdBy
+                : window.user.phone
+        };
+
+        await window.saveLead(newLead);
+
+        form.reset();
+
+        document.getElementById('leadModal').style.display = 'none';
+
+        await loadLeadsTable();
+
+        alert('Lead saved successfully!');
+    } catch (err) {
+        console.error(err);
+        alert('Failed to save lead');
+    } finally {
+        isSaving = false;
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = originalText;
+    }
+}
             await window.saveLead(newLead);
             await loadLeadsTable();
             closeLeadModal();
